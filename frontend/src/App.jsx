@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import Cookies from "js-cookie";
+import ClipLoader from "react-spinners/ClipLoader";
 
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Navbar from "./components/Navbar";
@@ -9,15 +10,26 @@ import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import NotFound from "./components/NotFound";
 import AddBlog from "./components/AddBlog";
+import FailureView from "./components/FailureView";
 import UserContext from "./context/UserContext";
 
 import "./App.css";
 
 function App() {
-  const [user, setUser] = useState();
+  const apiStatusConstants = {
+    initial: "INITIAL",
+    success: "SUCCESS",
+    failure: "FAILURE",
+    inProgress: "IN_PROGRESS",
+  };
+
+  const [user, setUser] = useState(null);
+  const [apiStatus, setApiStatus] = useState(apiStatusConstants.initial);
+
   const jwtToken = Cookies.get("jwtToken");
 
   const getUser = async () => {
+    setApiStatus(apiStatusConstants.inProgress);
     try {
       const response = await fetch("/api/protected", {
         method: "GET",
@@ -34,8 +46,10 @@ function App() {
       } else {
         setUser(null);
       }
+      setApiStatus(apiStatusConstants.success);
     } catch (e) {
       console.log(e);
+      setApiStatus(apiStatusConstants.failure);
       setUser(null);
     }
   };
@@ -44,23 +58,58 @@ function App() {
     getUser();
   }, []);
 
-  return (
-    <>
-      <UserContext.Provider value={{ user, setUser }}>
-        <Navbar />
-        <Routes>
-          <Route path="/register" element={<SignUp />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Home />} />
-          <Route path="/not-found" element={<NotFound />} />
-          <Route element={<ProtectedRoutes />}>
-            <Route path="/add-blog" element={<AddBlog />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/not-found" />} />
-        </Routes>
-      </UserContext.Provider>
-    </>
-  );
+  const renderSuccessView = () => {
+    return (
+      <>
+        <UserContext.Provider value={{ user, setUser }}>
+          <Navbar />
+          <Routes>
+            <Route path="/register" element={<SignUp />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={<Home />} />
+            <Route path="/not-found" element={<NotFound />} />
+            <Route element={<ProtectedRoutes />}>
+              <Route path="/add-blog" element={<AddBlog />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/not-found" />} />
+          </Routes>
+        </UserContext.Provider>
+      </>
+    );
+  };
+
+  const renderFailureView = () => {
+    return (
+      <div
+        style={{ height: "100vh" }}
+        className="container d-flex flex-row justify-content-center"
+      >
+        <FailureView onRetry={getUser} />
+      </div>
+    );
+  };
+
+  const renderLoadingView = () => {
+    return (
+      <div
+        style={{ height: "100vh" }}
+        className="container d-flex flex-row justify-content-center align-items-center"
+      >
+        <ClipLoader />
+      </div>
+    );
+  };
+
+  switch (apiStatus) {
+    case apiStatusConstants.success:
+      return renderSuccessView();
+    case apiStatusConstants.failure:
+      return renderFailureView();
+    case apiStatusConstants.inProgress:
+      return renderLoadingView();
+    default:
+      return null;
+  }
 }
 
 export default App;
