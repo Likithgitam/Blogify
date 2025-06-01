@@ -2,7 +2,7 @@ function FailureView(props) {
   const { onRetry } = props;
   return (
     <div
-      style={{ height: "85vh" }}
+      style={{ minHeight: "90vh" }}
       className="d-flex flex-column justify-content-center align-items-center text-center"
     >
       <h1 className="text-xl font-semibold mb-2">Something Went Wrong</h1>

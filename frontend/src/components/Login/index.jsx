@@ -22,14 +22,9 @@ function Login() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    const { email, password } = formData;
-
-    if (!email || !password) {
-      setErrMsg("*Please fill in all fields.");
-      return;
-    }
-
     setLoading(true);
+    setErrMsg("");
+
     try {
       const response = await fetch("/api/users/login", {
         method: "POST",
@@ -67,6 +62,7 @@ function Login() {
             id="email"
             value={formData.email}
             onChange={handleChange}
+            required
           />
         </div>
 
@@ -80,6 +76,7 @@ function Login() {
             id="password"
             value={formData.password}
             onChange={handleChange}
+            required
           />
         </div>
 
@@ -99,9 +96,8 @@ function Login() {
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? "Submitting..." : "Login"}
         </button>
-
-        {errMsg && <p className="text-danger mt-3">{errMsg}</p>}
       </form>
+      {errMsg && <p className="text-danger mt-3">{errMsg}</p>}
     </div>
   );
 }

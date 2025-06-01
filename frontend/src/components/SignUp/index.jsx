@@ -21,13 +21,6 @@ function SignUp() {
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    const { firstName, lastName, username, email, password } = formData;
-
-    if (!firstName || !lastName || !username || !email || !password) {
-      setErrMsg("*Please fill in all the fields.");
-      return;
-    }
-
     setLoading(true);
     setErrMsg("");
 
@@ -67,6 +60,7 @@ function SignUp() {
               id="firstName"
               value={formData.firstName}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="mb-3 w-50 p-1">
@@ -79,6 +73,7 @@ function SignUp() {
               id="lastName"
               value={formData.lastName}
               onChange={handleChange}
+              required
             />
           </div>
         </div>
@@ -93,6 +88,7 @@ function SignUp() {
             id="username"
             value={formData.username}
             onChange={handleChange}
+            required
           />
         </div>
 
@@ -106,6 +102,7 @@ function SignUp() {
             id="email"
             value={formData.email}
             onChange={handleChange}
+            required
           />
           <div className="form-text">
             We'll never share your email with anyone else.
@@ -122,6 +119,7 @@ function SignUp() {
             id="password"
             value={formData.password}
             onChange={handleChange}
+            required
           />
         </div>
 

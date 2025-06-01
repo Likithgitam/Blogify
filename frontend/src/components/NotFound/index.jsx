@@ -1,7 +1,7 @@
 function NotFound() {
   return (
     <div
-      style={{ height: "85vh" }}
+      style={{ minHeight: "90vh" }}
       className="d-flex flex-row justify-content-center align-items-center"
     >
       <h1>404 | Not Found</h1>

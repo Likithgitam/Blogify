@@ -1,15 +1,20 @@
 import { useState, useRef, useMemo } from "react";
 import JoditEditor from "jodit-react";
+import { useNavigate } from "react-router";
+import Cookies from "js-cookie";
 
 function AddBlog() {
   const editor = useRef(null);
 
-  // const [content, setContent] = useState("");
   const [formData, setFormData] = useState({
     coverImage: null,
     title: "",
     content: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
+  const navigate = useNavigate();
 
   const config = useMemo(
     () => ({
@@ -21,21 +26,73 @@ function AddBlog() {
     []
   );
 
-  const handleSubmitBlog = (e) => {
+  const handleSubmitBlog = async (e) => {
     e.preventDefault();
+
+    const stripHtml = (html) => {
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = html;
+      return tempDiv.textContent || tempDiv.innerText || "";
+    };
+
+    const { title, coverImage, content } = formData;
+    if (!content || !stripHtml(content).trim()) {
+      setErrMsg("*Content Should not be empty");
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append("coverImage", coverImage);
+    fd.append("title", title);
+    fd.append("content", content);
+
+    setLoading(true);
+    setErrMsg("");
+
+    try {
+      const response = await fetch("/api/blogs", {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + Cookies.get("jwtToken"),
+        },
+        body: fd,
+      });
+
+      const { message } = await response.json();
+
+      if (!response.ok) {
+        setErrMsg(message);
+      } else {
+        console.log(message);
+        navigate("/");
+      }
+    } catch (e) {
+      console.log("Error", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div
-      style={{ minHeight: "85vh" }}
+      style={{ minHeight: "90vh" }}
       className="container d-flex flex-column justify-content-center"
     >
-      <form onSubmit={handleSubmitBlog}>
+      <form onSubmit={handleSubmitBlog} encType="multipart/form-data">
         <div className="mb-3">
-          <label for="coverImage" className="form-label">
+          <label htmlFor="coverImage" className="form-label">
             Cover Image:
           </label>
-          <input className="form-control" type="file" id="coverImage" />
+          <input
+            className="form-control"
+            type="file"
+            id="coverImage"
+            accept="image/*"
+            onChange={(e) => {
+              setFormData({ ...formData, coverImage: e.target.files[0] });
+            }}
+            required
+          />
         </div>
         <div className="mb-3">
           <label htmlFor="title" className="form-label">
@@ -49,6 +106,7 @@ function AddBlog() {
             onChange={(e) => {
               setFormData({ ...formData, title: e.target.value });
             }}
+            required
           />
         </div>
         <div className="mb-3">
@@ -58,12 +116,16 @@ function AddBlog() {
             value={formData.content}
             config={config}
             tabIndex={1} // tabIndex of textarea
-            onChange={(newContent) =>
+            onBlur={(newContent) =>
               setFormData({ ...formData, content: newContent })
             }
           />
         </div>
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? "Submitting..." : "Submit"}
+        </button>
       </form>
+      {errMsg && <p className="text-danger mt-3">{errMsg}</p>}
     </div>
   );
 }

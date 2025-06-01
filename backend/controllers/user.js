@@ -6,7 +6,6 @@ const User = require("../models/user");
 async function handleSignUp(req, res) {
   const { firstName, lastName, username, email, password } = req.body;
 
-  // Field validation
   if (!firstName || !lastName || !username || !email || !password) {
     return res.status(400).json({ message: "All fields are required." });
   }
@@ -67,6 +66,7 @@ async function handleLogin(req, res) {
     }
 
     const payload = {
+      _id: dbUser._id,
       email: dbUser.email,
       username: dbUser.username,
     };
@@ -75,7 +75,7 @@ async function handleLogin(req, res) {
       expiresIn: "7d",
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Login successful",
       user: payload,
       jwtToken,
@@ -85,7 +85,5 @@ async function handleLogin(req, res) {
     res.status(500).json({ message: "Internal Server Error" });
   }
 }
-
-module.exports = handleLogin;
 
 module.exports = { handleSignUp, handleLogin };
