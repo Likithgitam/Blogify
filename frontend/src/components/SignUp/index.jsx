@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router";
 import { useState } from "react";
 
+const API_BASE_URL = import.meta.env.API_BASE_URL;
+
 function SignUp() {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -25,7 +27,7 @@ function SignUp() {
     setErrMsg("");
 
     try {
-      const response = await fetch("/api/users/register", {
+      const response = await fetch(`${API_BASE_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),

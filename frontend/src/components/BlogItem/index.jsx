@@ -7,6 +7,8 @@ import { formatDistanceToNow } from "date-fns";
 
 import UserContext from "../../context/UserContext";
 
+const API_BASE_URL = import.meta.env.API_BASE_URL;
+
 function BlogItem(props) {
   const { blogDetails, onDeleteSuccess } = props;
 
@@ -41,7 +43,7 @@ function BlogItem(props) {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await fetch(`/api/blogs/${_id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/blogs/${_id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

@@ -7,14 +7,16 @@ import ClipLoader from "react-spinners/ClipLoader";
 import FailureView from "../FailureView";
 import UserContext from "../../context/UserContext";
 
-function AddBlog() {
-  const apiStatusConstants = {
-    initial: "INITIAL",
-    success: "SUCCESS",
-    failure: "FAILURE",
-    inProgress: "IN_PROGRESS",
-  };
+const API_BASE_URL = import.meta.env.API_BASE_URL;
 
+const apiStatusConstants = {
+  initial: "INITIAL",
+  success: "SUCCESS",
+  failure: "FAILURE",
+  inProgress: "IN_PROGRESS",
+};
+
+function AddBlog() {
   const editor = useRef(null);
   const config = useMemo(
     () => ({
@@ -39,7 +41,9 @@ function AddBlog() {
   const getBlogDetails = async () => {
     setApiStatus(apiStatusConstants.inProgress);
     try {
-      const response = await fetch(`/api/blogs/${blogId}`, { method: "GET" });
+      const response = await fetch(`${API_BASE_URL}/api/blogs/${blogId}`, {
+        method: "GET",
+      });
 
       if (!response.ok) {
         setApiStatus(apiStatusConstants.failure);

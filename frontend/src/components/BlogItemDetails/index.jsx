@@ -9,14 +9,16 @@ import { toast } from "react-toastify";
 import UserContext from "../../context/UserContext";
 import FailureView from "../FailureView";
 
-function BlogItemDetails() {
-  const apiStatusConstants = {
-    initial: "INITIAL",
-    success: "SUCCESS",
-    failure: "FAILURE",
-    inProgress: "IN_PROGRESS",
-  };
+const API_BASE_URL = import.meta.env.API_BASE_URL;
 
+const apiStatusConstants = {
+  initial: "INITIAL",
+  success: "SUCCESS",
+  failure: "FAILURE",
+  inProgress: "IN_PROGRESS",
+};
+
+function BlogItemDetails() {
   const [blogDetails, setBlogDetails] = useState({
     title: "",
     coverImageUrl: "",
@@ -34,7 +36,9 @@ function BlogItemDetails() {
   const getBlogDetails = async () => {
     setApiStatus(apiStatusConstants.inProgress);
     try {
-      const response = await fetch(`/api/blogs/${blogId}`, { method: "GET" });
+      const response = await fetch(`${API_BASE_URL}/api/blogs/${blogId}`, {
+        method: "GET",
+      });
 
       if (!response.ok) {
         setApiStatus(apiStatusConstants.failure);
@@ -75,13 +79,16 @@ function BlogItemDetails() {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await fetch(`/api/blogs/${blogDetails._id}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "Bearer " + Cookies.get("jwtToken"),
-        },
-      });
+      const response = await fetch(
+        `${API_BASE_URL}/api/blogs/${blogDetails._id}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + Cookies.get("jwtToken"),
+          },
+        }
+      );
 
       const data = await response.json();
 

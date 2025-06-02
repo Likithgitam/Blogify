@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import BlogItem from "../BlogItem";
 
-const Home = () => {
-  const apiStatusConstants = {
-    initial: "INITIAL",
-    success: "SUCCESS",
-    failure: "FAILURE",
-    inProgress: "IN_PROGRESS",
-  };
+const API_BASE_URL = import.meta.env.API_BASE_URL;
+const apiStatusConstants = {
+  initial: "INITIAL",
+  success: "SUCCESS",
+  failure: "FAILURE",
+  inProgress: "IN_PROGRESS",
+};
 
+const Home = () => {
   const [blogs, setBlogs] = useState([]);
   const [apiStatus, setApiStatus] = useState(apiStatusConstants.initial);
 
@@ -16,7 +17,9 @@ const Home = () => {
     setApiStatus(apiStatusConstants.initial);
 
     try {
-      const response = await fetch("/api/blogs", { method: "GET" });
+      const response = await fetch(`${API_BASE_URL}/api/blogs`, {
+        method: "GET",
+      });
 
       if (!response.ok) {
         setApiStatus(apiStatusConstants.failure);

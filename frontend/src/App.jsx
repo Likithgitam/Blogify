@@ -19,6 +19,8 @@ import BlogItemDetails from "./components/BlogItemDetails";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function App() {
   const apiStatusConstants = {
     initial: "INITIAL",
@@ -35,7 +37,7 @@ function App() {
   const getUser = async () => {
     setApiStatus(apiStatusConstants.inProgress);
     try {
-      const response = await fetch("/api/protected", {
+      const response = await fetch(`${API_BASE_URL}/api/protected`, {
         method: "GET",
         headers: {
           Authorization: "Bearer " + jwtToken,

@@ -3,6 +3,8 @@ import JoditEditor from "jodit-react";
 import { useNavigate } from "react-router";
 import Cookies from "js-cookie";
 
+const API_BASE_URL = import.meta.env.API_BASE_URL;
+
 function AddBlog() {
   const editor = useRef(null);
 
@@ -50,7 +52,7 @@ function AddBlog() {
     setErrMsg("");
 
     try {
-      const response = await fetch("/api/blogs", {
+      const response = await fetch(`${API_BASE_URL}/api/blogs`, {
         method: "POST",
         headers: {
           Authorization: "Bearer " + Cookies.get("jwtToken"),
