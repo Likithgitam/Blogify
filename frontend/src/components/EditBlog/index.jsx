@@ -112,8 +112,8 @@ function AddBlog() {
       if (!response.ok) {
         setErrMsg(message);
       } else {
-        console.log(message);
-        navigate("/");
+        setErrMsg("");
+        navigate(`/blogs/${blogId}`, { replace: true });
       }
     } catch (e) {
       console.log("Error", e);

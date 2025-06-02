@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Navigate, Route, Routes } from "react-router";
 import Cookies from "js-cookie";
 import ClipLoader from "react-spinners/ClipLoader";
+import { ToastContainer } from "react-toastify";
 
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import Navbar from "./components/Navbar";
@@ -13,9 +14,10 @@ import AddBlog from "./components/AddBlog";
 import EditBlog from "./components/EditBlog";
 import FailureView from "./components/FailureView";
 import UserContext from "./context/UserContext";
-
-import "./App.css";
 import BlogItemDetails from "./components/BlogItemDetails";
+
+import "react-toastify/dist/ReactToastify.css";
+import "./App.css";
 
 function App() {
   const apiStatusConstants = {
@@ -65,6 +67,7 @@ function App() {
       <>
         <UserContext.Provider value={{ user, setUser }}>
           <Navbar />
+          <ToastContainer />
           <Routes>
             <Route path="/register" element={<SignUp />} />
             <Route path="/login" element={<Login />} />

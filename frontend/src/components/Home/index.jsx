@@ -54,21 +54,49 @@ const Home = () => {
     </div>
   );
 
-  const renderSuccessView = () => (
-    <div className="container py-4">
-      <div className="row">
-        {blogs.map((eachBlog) => (
-          <div
-            key={eachBlog._id}
-            className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center mb-4"
-          >
-            <BlogItem blogDetails={eachBlog} />
+  const renderSuccessView = () => {
+    if (blogs.length === 0) {
+      return (
+        <div
+          style={{ height: "90vh", textAlign: "center" }}
+          className="container d-flex flex-column justify-content-center align-items-center"
+        >
+          <img
+            src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png"
+            alt="No blogs"
+            style={{ width: "150px", marginBottom: "20px" }}
+          />
+          <h3 className="mb-3">No Blogs Found</h3>
+          <p className="text-muted mb-4">
+            Looks like there aren't any blog posts right now.
+          </p>
+          <div className="d-flex gap-3">
+            <button className="btn btn-primary" onClick={getBlogs}>
+              Retry
+            </button>
+            <a href="/add-blog" className="btn btn-outline-secondary">
+              Add Blog
+            </a>
           </div>
-        ))}
-      </div>
-    </div>
-  );
+        </div>
+      );
+    }
 
+    return (
+      <div className="container py-4">
+        <div className="row">
+          {blogs.map((eachBlog) => (
+            <div
+              key={eachBlog._id}
+              className="col-12 col-sm-6 col-md-4 col-lg-3 d-flex justify-content-center mb-4"
+            >
+              <BlogItem blogDetails={eachBlog} onDeleteSuccess={getBlogs} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
   switch (apiStatus) {
     case apiStatusConstants.success:
       return renderSuccessView();

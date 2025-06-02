@@ -8,8 +8,8 @@ const {
   handleGetAllBlogs,
   handleGetSpecificBlog,
   handleUpdateSpecificBlog,
+  handleDeleteSpecificBlog,
 } = require("../controllers/blog");
-const Blog = require("../models/blog");
 
 const router = express.Router();
 
@@ -18,7 +18,10 @@ router
   .post(authMiddleware, upload.single("coverImage"), handleCreateNewBlog)
   .get(handleGetAllBlogs);
 
-router.get("/:blogId", handleGetSpecificBlog);
+router
+  .route("/:blogId")
+  .get(handleGetSpecificBlog)
+  .delete(authMiddleware, handleDeleteSpecificBlog);
 
 router.put(
   "/edit/:blogId",

@@ -1,6 +1,6 @@
 const { v2: cloudinary } = require("cloudinary");
 const fs = require("fs");
-
+const mongoose = require("mongoose");
 const Blog = require("../models/blog");
 
 cloudinary.config({
@@ -17,12 +17,12 @@ async function handleCreateNewBlog(req, res) {
   const { title, content } = req.body;
   if (!title || !content) {
     return res.status(400).json({
-      message: "All fields are required.",
+      message: "Title and content are required.",
     });
   }
 
   if (!req.file) {
-    return res.status(400).json({ message: "Invalid File." });
+    return res.status(400).json({ message: "Cover image file is required." });
   }
 
   try {
@@ -41,7 +41,7 @@ async function handleCreateNewBlog(req, res) {
     });
 
     return res.status(200).json({
-      message: "Blog Created Successfully",
+      message: "Blog created successfully.",
       blogId: result._id,
     });
   } catch (e) {
@@ -54,11 +54,11 @@ async function handleGetAllBlogs(req, res) {
   try {
     const blogs = await Blog.find(
       {},
-      { title: 1, author: 1, coverImageUrl: 1 }
+      { title: 1, author: 1, coverImageUrl: 1, createdAt: 1 }
     ).populate("author", "username");
     return res
       .status(200)
-      .json({ message: "Blogs Fetched Successfully", blogs });
+      .json({ message: "Blogs fetched successfully.", blogs });
   } catch (e) {
     console.log("Error Retrieving Blogs:", e);
     return res.status(500).json({ message: "Internal server error." });
@@ -67,14 +67,25 @@ async function handleGetAllBlogs(req, res) {
 
 async function handleGetSpecificBlog(req, res) {
   const { blogId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(blogId)) {
+    return res.status(400).json({ message: "Invalid blog ID." });
+  }
+
   try {
     const blogDetails = await Blog.findById(blogId).populate(
       "author",
       "username"
     );
-    return res
-      .status(200)
-      .json({ message: "Blog Details Fetched Successfully", blogDetails });
+
+    if (!blogDetails) {
+      return res.status(404).json({ message: "Blog not found." });
+    }
+
+    return res.status(200).json({
+      message: "Blog details fetched successfully.",
+      blogDetails,
+    });
   } catch (e) {
     console.log("Error Retrieving Blog Details:", e);
     return res.status(500).json({ message: "Internal server error." });
@@ -84,6 +95,10 @@ async function handleGetSpecificBlog(req, res) {
 async function handleUpdateSpecificBlog(req, res) {
   const { blogId } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(blogId)) {
+    return res.status(400).json({ message: "Invalid blog ID." });
+  }
+
   if (!req.body) {
     return res.status(400).json({ message: "Request body is missing." });
   }
@@ -91,12 +106,8 @@ async function handleUpdateSpecificBlog(req, res) {
   const { title, content } = req.body;
   if (!title || !content) {
     return res.status(400).json({
-      message: "All fields are required.",
+      message: "Title and content are required.",
     });
-  }
-
-  if (!req.file) {
-    return res.status(400).json({ message: "Invalid File." });
   }
 
   const currentUser = req.user._id;
@@ -105,45 +116,91 @@ async function handleUpdateSpecificBlog(req, res) {
     const blogDetails = await Blog.findById(blogId);
 
     if (!blogDetails) {
-      return res.status(404).json({ message: "Blog not found" });
+      return res.status(404).json({ message: "Blog not found." });
     }
 
     if (blogDetails.author.toString() !== currentUser) {
-      return res.status(403).json({ message: "Not Authorised" });
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to update this blog." });
     }
 
-    // Handle image update
-    let coverImageUrl = blogDetails.coverImageUrl;
+    let updatedData = {
+      title,
+      content,
+    };
 
     if (req.file) {
-      // If a new image was uploaded, upload to Cloudinary or wherever
+      // Delete old image from Cloudinary
+      const oldImageUrl = blogDetails.coverImageUrl;
+      const parts = oldImageUrl.split("/");
+      const filename = parts[parts.length - 1];
+      const publicId = filename.split(".")[0];
+
+      await cloudinary.uploader.destroy(publicId);
+
+      // Upload new image
       const uploadResult = await cloudinary.uploader.upload(req.file.path);
+
+      // Delete temp file
       fs.unlink(req.file.path, (error) => {
         if (error) {
-          console.log(error);
+          console.log("Error deleting temp file:", error);
         }
       });
 
-      coverImageUrl = uploadResult.url;
+      updatedData.coverImageUrl = uploadResult.url;
     }
 
-    const updatedBlog = await Blog.findByIdAndUpdate(
-      blogId,
-      {
-        title,
-        content,
-        coverImageUrl,
-      },
-      { new: true }
-    );
+    const updatedBlog = await Blog.findByIdAndUpdate(blogId, updatedData, {
+      new: true,
+    });
 
     res.status(200).json({
-      message: "Blog updated successfully",
+      message: "Blog updated successfully.",
       blog: updatedBlog,
     });
   } catch (error) {
-    console.error("Update Blog Error:", error);
-    res.status(500).json({ message: "Something went wrong" });
+    console.log("Update Blog Error:", error);
+    return res.status(500).json({ message: "Internal server error." });
+  }
+}
+
+async function handleDeleteSpecificBlog(req, res) {
+  const { blogId } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(blogId)) {
+    return res.status(400).json({ message: "Invalid blog ID." });
+  }
+
+  try {
+    const blog = await Blog.findById(blogId);
+
+    if (!blog) {
+      return res.status(404).json({ message: "Blog not found." });
+    }
+
+    const currentUser = req.user._id;
+    if (currentUser !== blog.author.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You are not authorized to delete this blog." });
+    }
+
+    // Extract public_id from Cloudinary URL
+    const imageUrl = blog.coverImageUrl;
+    const parts = imageUrl.split("/");
+    const filename = parts[parts.length - 1];
+    const publicId = filename.split(".")[0];
+
+    await cloudinary.uploader.destroy(publicId);
+
+    await Blog.findByIdAndDelete(blogId);
+
+    res.status(200).json({ message: "Blog and image deleted successfully." });
+  } catch (error) {
+    console.log("Delete blog error:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 }
 
@@ -152,4 +209,5 @@ module.exports = {
   handleGetAllBlogs,
   handleGetSpecificBlog,
   handleUpdateSpecificBlog,
+  handleDeleteSpecificBlog,
 };

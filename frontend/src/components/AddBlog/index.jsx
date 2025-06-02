@@ -63,7 +63,7 @@ function AddBlog() {
       if (!response.ok) {
         setErrMsg(data.message);
       } else {
-        navigate(`/blogs/${data.blogId}`);
+        navigate(`/blogs/${data.blogId}`, { replace: true });
       }
     } catch (e) {
       console.log("Error", e);
