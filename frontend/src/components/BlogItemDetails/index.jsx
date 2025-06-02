@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import UserContext from "../../context/UserContext";
 import FailureView from "../FailureView";
 
-const API_BASE_URL = import.meta.env.API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const apiStatusConstants = {
   initial: "INITIAL",

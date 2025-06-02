@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import BlogItem from "../BlogItem";
 
-const API_BASE_URL = import.meta.env.API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const apiStatusConstants = {
   initial: "INITIAL",
   success: "SUCCESS",

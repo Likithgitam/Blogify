@@ -7,7 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 
 import UserContext from "../../context/UserContext";
 
-const API_BASE_URL = import.meta.env.API_BASE_URL;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function BlogItem(props) {
   const { blogDetails, onDeleteSuccess } = props;
