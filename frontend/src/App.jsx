@@ -10,10 +10,12 @@ import SignUp from "./components/SignUp";
 import Login from "./components/Login";
 import NotFound from "./components/NotFound";
 import AddBlog from "./components/AddBlog";
+import EditBlog from "./components/EditBlog";
 import FailureView from "./components/FailureView";
 import UserContext from "./context/UserContext";
 
 import "./App.css";
+import BlogItemDetails from "./components/BlogItemDetails";
 
 function App() {
   const apiStatusConstants = {
@@ -23,7 +25,7 @@ function App() {
     inProgress: "IN_PROGRESS",
   };
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState({ _id: "", username: "", email: "" });
   const [apiStatus, setApiStatus] = useState(apiStatusConstants.initial);
 
   const jwtToken = Cookies.get("jwtToken");
@@ -67,9 +69,11 @@ function App() {
             <Route path="/register" element={<SignUp />} />
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<Home />} />
+            <Route path="/blogs/:blogId" element={<BlogItemDetails />} />
             <Route path="/not-found" element={<NotFound />} />
             <Route element={<ProtectedRoutes />}>
               <Route path="/add-blog" element={<AddBlog />} />
+              <Route path="/blogs/edit/:blogId" element={<EditBlog />} />
             </Route>
             <Route path="*" element={<Navigate to="/not-found" />} />
           </Routes>
@@ -84,7 +88,10 @@ function App() {
         style={{ height: "100vh" }}
         className="container d-flex flex-row justify-content-center"
       >
-        <FailureView onRetry={getUser} />
+        <FailureView
+          onRetry={getUser}
+          message="We are having some trouble fetching the data. Please try again."
+        />
       </div>
     );
   };

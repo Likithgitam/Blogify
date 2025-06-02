@@ -10,7 +10,7 @@ const blogSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    coverImage: {
+    coverImageUrl: {
       type: String,
       required: true,
     },

@@ -59,7 +59,7 @@ const Navbar = () => {
       className="navbar navbar-expand-lg bg-body-tertiary bg-dark"
       data-bs-theme="dark"
     >
-      <div className="container-fluid">
+      <div className="container">
         <Link className="navbar-brand" to="/">
           Blogify
         </Link>

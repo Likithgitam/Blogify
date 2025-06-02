@@ -58,13 +58,12 @@ function AddBlog() {
         body: fd,
       });
 
-      const { message } = await response.json();
+      const data = await response.json();
 
       if (!response.ok) {
-        setErrMsg(message);
+        setErrMsg(data.message);
       } else {
-        console.log(message);
-        navigate("/");
+        navigate(`/blogs/${data.blogId}`);
       }
     } catch (e) {
       console.log("Error", e);
@@ -76,23 +75,37 @@ function AddBlog() {
   return (
     <div
       style={{ minHeight: "90vh" }}
-      className="container d-flex flex-column justify-content-center"
+      className="container d-flex flex-column justify-content-center pt-3 pb-3"
     >
       <form onSubmit={handleSubmitBlog} encType="multipart/form-data">
         <div className="mb-3">
           <label htmlFor="coverImage" className="form-label">
             Cover Image:
           </label>
-          <input
-            className="form-control"
-            type="file"
-            id="coverImage"
-            accept="image/*"
-            onChange={(e) => {
-              setFormData({ ...formData, coverImage: e.target.files[0] });
-            }}
-            required
-          />
+          <div className="d-flex flex-row">
+            {formData.coverImage && (
+              <img
+                src={URL.createObjectURL(formData.coverImage)}
+                alt="New Cover"
+                style={{
+                  maxWidth: "100px",
+                  maxHeight: "100px",
+                  borderRadius: "8px",
+                  marginRight: "15px",
+                }}
+              />
+            )}
+            <input
+              className="form-control align-self-end"
+              type="file"
+              id="coverImage"
+              accept="image/*"
+              onChange={(e) => {
+                setFormData({ ...formData, coverImage: e.target.files[0] });
+              }}
+              required
+            />
+          </div>
         </div>
         <div className="mb-3">
           <label htmlFor="title" className="form-label">

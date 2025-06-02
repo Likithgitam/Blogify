@@ -23,7 +23,7 @@ app.use(express.json());
 
 // router registrations
 app.use("/api/users", userRouter);
-app.use("/api/blogs", authMiddleware, blogRouter);
+app.use("/api/blogs", blogRouter);
 
 // GET endpoint to check if user is logged in or not
 app.get("/api/protected", authMiddleware, (req, res) => {
