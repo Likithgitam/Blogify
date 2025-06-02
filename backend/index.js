@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 
 const userRouter = require("./routes/user");
@@ -19,6 +20,13 @@ connectToMongoDB(process.env.MONGODB_URI)
 const app = express();
 
 // middlewares
+app.use(
+  cors({
+    origin: "https://blogify-beta-murex.vercel.app",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true, // allow cookies or authorization headers
+  })
+);
 app.use(express.json());
 
 // router registrations
