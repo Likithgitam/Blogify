@@ -103,7 +103,7 @@ function AddBlog() {
     setErrMsg("");
 
     try {
-      const response = await fetch(`/api/blogs/edit/${blogId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/blogs/edit/${blogId}`, {
         method: "PUT",
         headers: {
           Authorization: "Bearer " + Cookies.get("jwtToken"),
